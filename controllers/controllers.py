@@ -9,8 +9,8 @@ from odoo.http import request
 import re
 
 class OdooApiXMLRPC(http.Controller):
-    @http.route('/odoo-api/common/login', type="json", auth='none', cors='*')
-    def odoo_api_login(self, **kw):
+    @http.route('/odoo-api/common/version', type="json", auth='none', cors='*')
+    def odoo_api_version(self, **kw):
         model = request.env['ir.module.module'].sudo().search([('name', '=', 'base')], limit=1)
         version = model.installed_version.split('.')
         return {
@@ -19,3 +19,11 @@ class OdooApiXMLRPC(http.Controller):
             "server_serie": version[0] + ".0",
             "protocol_version": 1,
         }
+
+    @http.route('/odoo-api/common/login', type="json", auth='none', cors='*')
+    def odoo_api_login(self, **kw):
+        try:
+            uid = request.session.authenticate(kw['db'], kw['login'], kw['password'])
+            return uid
+        except:
+            return {'status': False}
