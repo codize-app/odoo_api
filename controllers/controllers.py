@@ -21,9 +21,9 @@ class OdooApiXMLRPC(http.Controller):
         }
 
     @http.route('/odoo-api/common/login', type="json", auth='none', cors='*')
-    def odoo_api_login(self, **kw):
+    def odoo_api_login(self, db=None, login=None, password=None, **kw):
         try:
-            uid = request.session.authenticate(kw['db'], kw['login'], kw['password'])
+            uid = request.session.authenticate(db, login, password)
             return uid
         except:
             return {'status': False}
@@ -34,6 +34,17 @@ class OdooApiXMLRPC(http.Controller):
             uid = request.session.authenticate(db, login, password)
             if uid:
                 return request.env[model].browse(uid).fields_get(attributes=attributes)
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
+
+    @http.route('/odoo-api/object/search_count', type="json", auth='none', cors='*')
+    def odoo_api_search_count(self, model, filters=None, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                return request.env[model].browse(uid).search_count(filters)
             else:
                 return {'status': False, 'error': 'Authorization err'}
         except:
