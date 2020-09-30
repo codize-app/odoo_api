@@ -27,3 +27,14 @@ class OdooApiXMLRPC(http.Controller):
             return uid
         except:
             return {'status': False}
+
+    @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors='*')
+    def odoo_api_fields_get(self, model, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                return request.env[model].browse(uid).fields_get(attributes=attributes)
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
