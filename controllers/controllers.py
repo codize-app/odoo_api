@@ -29,22 +29,75 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False}
 
     @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors='*')
-    def odoo_api_fields_get(self, model, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_fields_get(self, model, db=None, login=None, password=None, keys=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
             if uid:
-                return request.env[model].browse(uid).fields_get(attributes=attributes)
+                attributes=None
+                allfields=None
+                if 'attributes' in keys.keys():
+                    attributes=keys['attributes']
+                if 'allfields' in keys.keys():
+                    allfields=keys['allfields']
+
+                return request.env[model].browse(uid).fields_get(attributes=attributes, allfields=allfields)
             else:
                 return {'status': False, 'error': 'Authorization err'}
         except:
             return {'status': False}
 
     @http.route('/odoo-api/object/search_count', type="json", auth='none', cors='*')
-    def odoo_api_search_count(self, model, filters=None, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_search_count(self, model, filters=None, db=None, login=None, password=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
             if uid:
                 return request.env[model].browse(uid).search_count(filters)
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
+
+    @http.route('/odoo-api/object/search', type="json", auth='none', cors='*')
+    def odoo_api_search(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                limit=None
+                offset=None
+                order=None
+                count=False
+
+                if 'limit' in keys.keys():
+                    limit=keys['limit']
+                if 'offset' in keys.keys():
+                    offset=keys['offset']
+                if 'order' in keys.keys():
+                    order=keys['order']
+                if 'count' in keys.keys():
+                    count=keys['count']
+
+                ans = []
+                model = request.env[model].browse(uid).search(filters, limit=limit, offset=offset, order=order, count=count)
+                for m in model:
+                    ans.append(m.id)
+                return ans
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
+
+    @http.route('/odoo-api/object/read', type="json", auth='none', cors='*')
+    def odoo_api_read(self, model, ids=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                fields=None
+
+                if 'fields' in keys.keys():
+                    fields=keys['fields']
+
+                model = request.env[model].browse(uid).browse(ids).read(fields=fields)
+                return model
             else:
                 return {'status': False, 'error': 'Authorization err'}
         except:
