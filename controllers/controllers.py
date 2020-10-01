@@ -140,3 +140,15 @@ class OdooApiXMLRPC(http.Controller):
                 return {'status': False, 'error': 'Authorization err'}
         except:
             return {'status': False}
+
+    @http.route('/odoo-api/object/create', type="json", auth='none', cors='*')
+    def odoo_api_create(self, model, vals={}, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                model = request.env[model].browse(uid).create(vals)
+                return model.id
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
