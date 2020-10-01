@@ -4,6 +4,7 @@
 # Moldeo Interactive - https://www.moldeointeractive.com.ar
 
 # -*- coding: utf-8 -*-
+import odoo
 from odoo import http
 from odoo.http import request
 import re
@@ -11,12 +12,11 @@ import re
 class OdooApiXMLRPC(http.Controller):
     @http.route('/odoo-api/common/version', type="json", auth='none', cors='*')
     def odoo_api_version(self, **kw):
-        model = request.env['ir.module.module'].sudo().search([('name', '=', 'base')], limit=1)
-        version = model.installed_version.split('.')
+        version = odoo.release.version.split('.')
         return {
-            "server_version": version[0] + ".0",
-            "server_version_info": [int(version[0]), 0, 0, "final", 0],
-            "server_serie": version[0] + ".0",
+            "server_version": version[0] + "." + version[1],
+            "server_version_info": [int(version[0]), int(version[1]), 0, "final", 0],
+            "server_serie": version[0] + "." + version[1],
             "protocol_version": 1,
         }
 
@@ -123,6 +123,18 @@ class OdooApiXMLRPC(http.Controller):
                     fields=keys['fields']
 
                 model = request.env[model].browse(uid).search_read(filters, limit=limit, offset=offset, order=order, fields=fields)
+                return model
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
+
+    @http.route('/odoo-api/object/write', type="json", auth='none', cors='*')
+    def odoo_api_write(self, model, id=None, vals={}, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                model = request.env[model].browse(uid).browse(id).write(vals)
                 return model
             else:
                 return {'status': False, 'error': 'Authorization err'}
