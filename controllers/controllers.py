@@ -102,3 +102,29 @@ class OdooApiXMLRPC(http.Controller):
                 return {'status': False, 'error': 'Authorization err'}
         except:
             return {'status': False}
+
+    @http.route('/odoo-api/object/search_read', type="json", auth='none', cors='*')
+    def odoo_api_search_read(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                limit=None
+                offset=0
+                order=None
+                fields=None
+
+                if 'limit' in keys.keys():
+                    limit=keys['limit']
+                if 'offset' in keys.keys():
+                    offset=keys['offset']
+                if 'order' in keys.keys():
+                    order=keys['order']
+                if 'fields' in keys.keys():
+                    fields=keys['fields']
+
+                model = request.env[model].browse(uid).search_read(filters, limit=limit, offset=offset, order=order, fields=fields)
+                return model
+            else:
+                return {'status': False, 'error': 'Authorization err'}
+        except:
+            return {'status': False}
