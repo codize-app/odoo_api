@@ -9,9 +9,11 @@ from odoo import http
 from odoo.http import request
 import re
 
+CORS = '*'
+
 class OdooApiXMLRPC(http.Controller):
     # version #
-    @http.route('/odoo-api/common/version', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/common/version', type="json", auth='none', cors=CORS)
     def odoo_api_version(self, **kw):
         version = odoo.release.version.split('.')
         return {
@@ -22,7 +24,7 @@ class OdooApiXMLRPC(http.Controller):
         }
 
     # login #
-    @http.route('/odoo-api/common/login', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/common/login', type="json", auth='none', cors=CORS)
     def odoo_api_login(self, db=None, login=None, password=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -31,7 +33,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # fields_get #
-    @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors=CORS)
     def odoo_api_fields_get(self, model, db=None, login=None, password=None, keys={}, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -48,7 +50,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # search_count #
-    @http.route('/odoo-api/object/search_count', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/search_count', type="json", auth='none', cors=CORS)
     def odoo_api_search_count(self, model, filters=None, db=None, login=None, password=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -58,7 +60,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # search #
-    @http.route('/odoo-api/object/search', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/search', type="json", auth='none', cors=CORS)
     def odoo_api_search(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -86,7 +88,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # read #
-    @http.route('/odoo-api/object/read', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/read', type="json", auth='none', cors=CORS)
     def odoo_api_read(self, model, ids=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -102,7 +104,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # search_read #
-    @http.route('/odoo-api/object/search_read', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/search_read', type="json", auth='none', cors=CORS)
     def odoo_api_search_read(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -127,7 +129,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # write #
-    @http.route('/odoo-api/object/write', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/write', type="json", auth='none', cors=CORS)
     def odoo_api_write(self, model, id=None, vals={}, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -138,7 +140,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # create #
-    @http.route('/odoo-api/object/create', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/create', type="json", auth='none', cors=CORS)
     def odoo_api_create(self, model, vals={}, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
@@ -149,7 +151,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     # unlink #
-    @http.route('/odoo-api/object/unlink', type="json", auth='none', cors='*')
+    @http.route('/odoo-api/object/unlink', type="json", auth='none', cors=CORS)
     def odoo_api_unlink(self, model, id=None, db=None, login=None, password=None, attributes=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
