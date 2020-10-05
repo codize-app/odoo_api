@@ -27,12 +27,12 @@ class OdooApiXMLRPC(http.Controller):
         try:
             uid = request.session.authenticate(db, login, password)
             return uid
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # fields_get #
     @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors='*')
-    def odoo_api_fields_get(self, model, db=None, login=None, password=None, keys=None, **kw):
+    def odoo_api_fields_get(self, model, db=None, login=None, password=None, keys={}, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
             if uid:
@@ -44,10 +44,8 @@ class OdooApiXMLRPC(http.Controller):
                     allfields=keys['allfields']
 
                 return request.env[model].browse(uid).fields_get(attributes=attributes, allfields=allfields)
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # search_count #
     @http.route('/odoo-api/object/search_count', type="json", auth='none', cors='*')
@@ -56,10 +54,8 @@ class OdooApiXMLRPC(http.Controller):
             uid = request.session.authenticate(db, login, password)
             if uid:
                 return request.env[model].browse(uid).search_count(filters)
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # search #
     @http.route('/odoo-api/object/search', type="json", auth='none', cors='*')
@@ -86,10 +82,8 @@ class OdooApiXMLRPC(http.Controller):
                 for m in model:
                     ans.append(m.id)
                 return ans
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # read #
     @http.route('/odoo-api/object/read', type="json", auth='none', cors='*')
@@ -104,10 +98,8 @@ class OdooApiXMLRPC(http.Controller):
 
                 model = request.env[model].browse(uid).browse(ids).read(fields=fields)
                 return model
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # search_read #
     @http.route('/odoo-api/object/search_read', type="json", auth='none', cors='*')
@@ -131,10 +123,8 @@ class OdooApiXMLRPC(http.Controller):
 
                 model = request.env[model].browse(uid).search_read(filters, limit=limit, offset=offset, order=order, fields=fields)
                 return model
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # write #
     @http.route('/odoo-api/object/write', type="json", auth='none', cors='*')
@@ -144,10 +134,8 @@ class OdooApiXMLRPC(http.Controller):
             if uid:
                 model = request.env[model].browse(uid).browse(id).write(vals)
                 return model
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # create #
     @http.route('/odoo-api/object/create', type="json", auth='none', cors='*')
@@ -157,10 +145,8 @@ class OdooApiXMLRPC(http.Controller):
             if uid:
                 model = request.env[model].browse(uid).create(vals)
                 return model.id
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
 
     # unlink #
     @http.route('/odoo-api/object/unlink', type="json", auth='none', cors='*')
@@ -170,7 +156,5 @@ class OdooApiXMLRPC(http.Controller):
             if uid:
                 model = request.env[model].browse(uid).browse(id).unlink()
                 return model
-            else:
-                return {'status': False, 'error': 'Authorization err'}
-        except:
-            return {'status': False}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
