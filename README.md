@@ -13,8 +13,6 @@ None
 
 #### Examples
 
--
-
 ### Odoo Fields Get
 
 ```POST /odoo-api/object/fields_get```
