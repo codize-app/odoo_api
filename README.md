@@ -203,3 +203,9 @@ Attribute | Type | Required | Description
 `password` | string | yes | Odoo User Password
 
 #### Examples
+
+___
+
+Originally developed for Codize App
+
+Developer: Ignacio Buioli <<ibuioli@gmail.com>>
