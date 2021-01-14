@@ -1,4 +1,4 @@
-[English](https://github.com/codize-app/odoo_api/edit/master/README.md) | **Spanish**
+[English](https://github.com/codize-app/odoo_api/blob/master/README.md) | **Spanish**
 
 # odoo_api
 Odoo API estilo XMLRPC
