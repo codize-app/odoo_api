@@ -8,27 +8,30 @@ Odoo API XMLRPC Style
     * [Parameters](#parameters)
     * [Examples](#examples)
       + [Python](#python)
-  * [Odoo Fields Get](#odoo-fields-get)
+  * [Odoo Login](#odoo-login)
     * [Parameters](#parameters-2)
     * [Examples](#examples-2)
-  * [Odoo Search Count](#odoo-search-count)
+  * [Odoo Fields Get](#odoo-fields-get)
     * [Parameters](#parameters-3)
     * [Examples](#examples-3)
-  * [Odoo Search](#odoo-search)
+  * [Odoo Search Count](#odoo-search-count)
     * [Parameters](#parameters-4)
     * [Examples](#examples-4)
-  * [Odoo Read](#odoo-read)
+  * [Odoo Search](#odoo-search)
     * [Parameters](#parameters-5)
     * [Examples](#examples-5)
-  * [Odoo Write](#odoo-write)
+  * [Odoo Read](#odoo-read)
     * [Parameters](#parameters-6)
     * [Examples](#examples-6)
-  * [Odoo Create](#odoo-create)
+  * [Odoo Write](#odoo-write)
     * [Parameters](#parameters-7)
     * [Examples](#examples-7)
-  * [Odoo Delete](#odoo-delete)
+  * [Odoo Create](#odoo-create)
     * [Parameters](#parameters-8)
     * [Examples](#examples-8)
+  * [Odoo Delete](#odoo-delete)
+    * [Parameters](#parameters-9)
+    * [Examples](#examples-9)
 
 ## Documentation
 
@@ -55,6 +58,19 @@ r = requests.post(url, data=json.dumps(data), headers=headers)
 
 print(r.text)
 ```
+### Odoo Login
+
+```POST /odoo-api/common/login```
+
+#### Parameters
+
+Attribute | Type | Required | Description
+--- | --- | --- | ---
+`db` | string | yes | Odoo server DB name
+`login` | string | yes | Odoo User
+`password` | string | yes | Odoo User Password
+
+#### Examples
 
 ### Odoo Fields Get
 
