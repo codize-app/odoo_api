@@ -203,3 +203,8 @@ Atributo | Tipo | Requerido | Descripción
 `password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
+___
+
+Originalmente desarrollado para Codize App
+
+Desarrollador: Ignacio Buioli <<ibuioli@gmail.com>>
