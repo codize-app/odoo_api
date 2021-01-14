@@ -1,3 +1,5 @@
+**English** | [Spanish](/codize-app/odoo_api/edit/master/README_es.md)
+
 # odoo_api
 Odoo API XMLRPC Style
 
