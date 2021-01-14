@@ -1,6 +1,35 @@
 # odoo_api
 Odoo API XMLRPC Style
 
+## Table of contents
+
+- [Documentation](#documentation)
+  * [Odoo Version](#odoo-version)
+    * [Parameters](#parameters)
+    * [Examples](#examples)
+      + [Python](#python)
+  * [Odoo Fields Get](#odoo-fields-get)
+    * [Parameters](#parameters-2)
+    * [Examples](#examples-2)
+  * [Odoo Search Count](#odoo-search-count)
+    * [Parameters](#parameters-3)
+    * [Examples](#examples-3)
+  * [Odoo Search](#odoo-search)
+    * [Parameters](#parameters-4)
+    * [Examples](#examples-4)
+  * [Odoo Read](#odoo-read)
+    * [Parameters](#parameters-5)
+    * [Examples](#examples-5)
+  * [Odoo Write](#odoo-write)
+    * [Parameters](#parameters-6)
+    * [Examples](#examples-6)
+  * [Odoo Create](#odoo-create)
+    * [Parameters](#parameters-7)
+    * [Examples](#examples-7)
+  * [Odoo Delete](#odoo-delete)
+    * [Parameters](#parameters-8)
+    * [Examples](#examples-8)
+
 ## Documentation
 
 ### Odoo Version
@@ -12,6 +41,20 @@ Odoo API XMLRPC Style
 None
 
 #### Examples
+
+##### Python
+```python
+import requests
+import json
+
+url = 'http://localhost:8069/odoo-api/common/version'
+data = {'params': {}}
+headers = {'Content-type': 'application/json'}
+
+r = requests.post(url, data=json.dumps(data), headers=headers)
+
+print(r.text)
+```
 
 ### Odoo Fields Get
 
