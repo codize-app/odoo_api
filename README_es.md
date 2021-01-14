@@ -1,37 +1,39 @@
+[English](https://github.com/codize-app/odoo_api/edit/master/README.md) | **Spanish**
+
 # odoo_api
 Odoo API estilo XMLRPC
 
 ## Índice de Contenidos
 
-- [Documentation](#documentation)
+- [Documentación](#documentación)
   * [Odoo Version](#odoo-version)
-    * [Parameters](#parameters)
-    * [Examples](#examples)
+    * [Parámetros](#parámetros)
+    * [Ejemplos](#ejemplos)
       + [Python](#python)
   * [Odoo Login](#odoo-login)
-    * [Parameters](#parameters-2)
-    * [Examples](#examples-2)
+    * [Parámetros](#parámetros-2)
+    * [Ejemplos](#ejemplos-2)
   * [Odoo Fields Get](#odoo-fields-get)
-    * [Parameters](#parameters-3)
-    * [Examples](#examples-3)
+    * [Parámetros](#parámetros-3)
+    * [Ejemplos](#ejemplos-3)
   * [Odoo Search Count](#odoo-search-count)
-    * [Parameters](#parameters-4)
-    * [Examples](#examples-4)
+    * [Parámetros](#parámetros-4)
+    * [Ejemplos](#ejemplos-4)
   * [Odoo Search](#odoo-search)
-    * [Parameters](#parameters-5)
-    * [Examples](#examples-5)
+    * [Parámetros](#parámetros-5)
+    * [Ejemplos](#ejemplos-5)
   * [Odoo Read](#odoo-read)
-    * [Parameters](#parameters-6)
-    * [Examples](#examples-6)
+    * [Parámetros](#parámetros-6)
+    * [Ejemplos](#ejemplos-6)
   * [Odoo Write](#odoo-write)
-    * [Parameters](#parameters-7)
-    * [Examples](#examples-7)
+    * [Parámetros](#parámetros-7)
+    * [Ejemplos](#ejemplos-7)
   * [Odoo Create](#odoo-create)
-    * [Parameters](#parameters-8)
-    * [Examples](#examples-8)
+    * [Parámetros](#parámetros-8)
+    * [Ejemplos](#ejemplos-8)
   * [Odoo Delete](#odoo-delete)
-    * [Parameters](#parameters-9)
-    * [Examples](#examples-9)
+    * [Parámetros](#parámetros-9)
+    * [Ejemplos](#ejemplos-9)
 
 ## Documentación
 
@@ -95,11 +97,11 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
+`model` | string | si | Modelo de Odoo
 `filters` | array | no | Filtro de Odoo para la búsqueda de registros
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -111,12 +113,12 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
+`model` | string | si | Modelo de Odoo
 `filters` | array | no | Filtro de Odoo para la búsqueda de registros
 `keys` | object | no | Argumentos de Odoo
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -128,11 +130,11 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
-`ids` | number array | yes | Array de números con los IDs de los registros
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`model` | string | si | Modelo de Odoo
+`ids` | number array | si | Array de números con los IDs de los registros
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -144,12 +146,12 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
+`model` | string | si | Modelo de Odoo
 `filters` | array | no | Filtro de Odoo para la búsqueda de registros
 `keys` | object | no | Argumentos de Odoo
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -161,12 +163,12 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
-`id` | number | yes | ID del registro de Odoo
-`vals` | object | yes | Valores nuevos a escribir
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`model` | string | si | Modelo de Odoo
+`id` | number | si | ID del registro de Odoo
+`vals` | object | si | Valores nuevos a escribir
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -178,11 +180,11 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
+`model` | string | si | Modelo de Odoo
 `vals` | object | no | Valores nuevos en el registro a crear
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -194,10 +196,10 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
-`id` | number | yes | ID del registro a eliminar
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`model` | string | si | Modelo de Odoo
+`id` | number | si | ID del registro a eliminar
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
