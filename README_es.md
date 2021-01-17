@@ -72,9 +72,9 @@ print(r.text)
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
@@ -86,10 +86,10 @@ Atributo | Tipo | Requerido | Descripción
 
 Atributo | Tipo | Requerido | Descripción
 --- | --- | --- | ---
-`model` | string | yes | Modelo de Odoo
-`db` | string | yes | Nombre de BD del servidor Odoo
-`login` | string | yes | Usuario Odoo
-`password` | string | yes | Contraseña del Usuario Odoo
+`model` | string | si | Modelo de Odoo
+`db` | string | si | Nombre de BD del servidor Odoo
+`login` | string | si | Usuario Odoo
+`password` | string | si | Contraseña del Usuario Odoo
 
 #### Ejemplos
 
