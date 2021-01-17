@@ -3,6 +3,10 @@
 # odoo_api
 Odoo API XMLRPC Style
 
+The module odoo_api allows you make REST API calls with a sintax similar to XMLRPC calls. The benefit of this is, you do not have to  do a lot of development on the backend side. The downside of that is you still have to do a lot of coding, on the frontend side. Plus, you will need to know the inner workings of Odoo. 
+
+This module has no requirements for its installation. You only need to download it form the github repository and install it in your Odoo. Please, keep in mind that the dbfilter setting needs to be set to a database for the REST interface to work.
+
 ## Table of contents
 
 - [Documentation](#documentation)
