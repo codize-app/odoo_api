@@ -7,6 +7,8 @@ The module odoo_api allows you make REST API calls with a sintax similar to XMLR
 
 This module has no requirements for its installation. You only need to download it form the github repository and install it in your Odoo. Please, keep in mind that the dbfilter setting needs to be set to a database for the REST interface to work.
 
+Check wiki: [odoo_api wiki](https://github.com/codize-app/odoo_api/wiki)
+
 ## Table of contents
 
 - [Documentation](#documentation)
