@@ -1,7 +1,7 @@
 # API Connector
 # XMLRPC Style for Odoo
-# Main Dev: Ignacio Buioli <ibuioli@gmail.com> or <ignacio.buioli@moldeointeractive.com.ar>
-# Moldeo Interactive - https://www.moldeointeractive.com.ar
+# Main Dev: Ignacio Buioli <ibuioli@gmail.com>
+# Codize - https://www.codize.ar
 
 # -*- coding: utf-8 -*-
 import odoo
