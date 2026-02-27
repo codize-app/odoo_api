@@ -15,6 +15,11 @@ import xmlrpc.client
 _logger = logging.getLogger(__name__)
 CORS = '*'
 
+ALLOWED_METHODS = {
+    'stock.picking': ['button_validate', 'action_done'],
+    'sale.order': ['action_confirm'],
+}
+
 class OdooApiXMLRPC(http.Controller):
     # version #
     @http.route('/odoo-api/common/version', type="json", auth='none', cors=CORS)
@@ -205,6 +210,34 @@ class OdooApiXMLRPC(http.Controller):
                 model = request.env[model].browse(uid).ref(report_name)._render_qweb_pdf([id])[0]    # ver. 14+
                 pdf = base64.b64encode(model)
                 return pdf
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
+        
+    # execute_method (genérico) #
+    @http.route('/odoo-api/object/execute_method', type="json", auth='none', cors=CORS)
+    def odoo_api_execute_method(self, model, ids, method, args=[], kwargs={}, db=None, login=None, password=None, **kw):
+        try:
+            uid = request.session.authenticate(db, login, password)
+            if uid:
+                # Validar whitelist
+                allowed = ALLOWED_METHODS.get(model, [])
+                if method not in allowed:
+                    return {'status': False, 'error': f"Método '{method}' no permitido para {model}"}
+
+                records = request.env[model].sudo().browse(ids)
+                fn = getattr(records, method, None)
+
+                if fn and callable(fn):
+                    result = fn(*args, **kwargs)
+                    _logger.info(f"Executed {model}.{method} with args={args} kwargs={kwargs} result={result}")
+                    if hasattr(result, 'ids'):
+                        return {'status': True, 'method': method, 'model': model, 'ids': result.ids}
+                    elif isinstance(result, (dict, list, str, int, float, bool)):
+                        return {'status': True, 'method': method, 'model': model, 'result': result}
+                    else:
+                        return {'status': True, 'method': method, 'model': model, 'result': str(result)}
+                else:
+                    return {'status': False, 'error': f"Método '{method}' no encontrado en {model}"}
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
