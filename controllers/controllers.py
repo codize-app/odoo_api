@@ -1,6 +1,8 @@
 # API Connector
-# XMLRPC Style for Odoo
-# Main Dev: Ignacio Buioli <ibuioli@gmail.com>
+# XMLRPC Style for Odoo with AUTH
+# Main Devs:
+# - Ignacio Buioli
+# - Martin Bruno
 # Codize - https://www.codize.ar
 
 # -*- coding: utf-8 -*-
@@ -10,15 +12,55 @@ import odoo
 from odoo import http
 from odoo.http import request
 import re
+import hmac as _hmac
+import hashlib
+import time
+import os
 import xmlrpc.client
 
 _logger = logging.getLogger(__name__)
 CORS = '*'
+ALLOWED_METHODS = []
+_signing_key = None
 
-ALLOWED_METHODS = {
-    'stock.picking': ['button_validate', 'action_done'],
-    'sale.order': ['action_confirm'],
-}
+# ─── HMAC helpers ─────────────────────────────────────────────────────────────
+
+def _get_key():
+    global _signing_key
+    if _signing_key:
+        return _signing_key
+    path = os.path.join(odoo.tools.config['data_dir'], 'api_key.bin')
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            _signing_key = f.read()
+    else:
+        _signing_key = os.urandom(32)
+        with open(path, 'wb') as f:
+            f.write(_signing_key)
+    return _signing_key
+
+def _make_token(uid):
+    exp = int(time.time()) + 86400 * 7  # 7 días
+    payload = f"{uid}:{exp}"
+    sig = _hmac.new(_get_key(), payload.encode(), hashlib.sha256).hexdigest()
+    return f"{payload}:{sig}"
+
+def _verify_token(token):
+    if not token:
+        return None
+    try:
+        i = token.rfind(':')
+        sig = token[i + 1:]
+        payload = token[:i]
+        expected = _hmac.new(_get_key(), payload.encode(), hashlib.sha256).hexdigest()
+        if not _hmac.compare_digest(sig, expected):
+            return None
+        uid_s, exp_s = payload.split(':', 1)
+        if int(exp_s) < int(time.time()):
+            return None
+        return int(uid_s)
+    except Exception:
+        return None
 
 class OdooApiXMLRPC(http.Controller):
     # version #
@@ -32,173 +74,140 @@ class OdooApiXMLRPC(http.Controller):
     def odoo_api_login(self, db=None, login=None, password=None, **kw):
         try:
             uid = request.session.authenticate(db, login, password)
-            return {
-                "user_uid": uid,
-                "authentification": True
-            }
+            if not uid:
+                return {'status': False, 'error': 'AUTH_REQUIRED'}
+            return {'uid': uid, 'token': _make_token(uid)}
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
+    def _env(self, uid):
+        return request.env(user=uid, su=True)
+
     # fields_get #
     @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors=CORS)
-    def odoo_api_fields_get(self, model, db=None, login=None, password=None, keys={}, **kw):
+    def odoo_api_fields_get(self, model, keys={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                attributes = None
-                allfields = None
-                if 'attributes' in keys.keys():
-                    attributes = keys['attributes']
-                if 'allfields' in keys.keys():
-                    allfields = keys['allfields']
-
-                return request.env[model].browse(uid).fields_get(attributes=attributes, allfields=allfields)
+            attributes = keys.get('attributes')
+            allfields = keys.get('allfields')
+            return self._env(uid)[model].fields_get(attributes=attributes, allfields=allfields)
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # search_count #
     @http.route('/odoo-api/object/search_count', type="json", auth='none', cors=CORS)
-    def odoo_api_search_count(self, model, filters=None, db=None, login=None, password=None, **kw):
+    def odoo_api_search_count(self, model, filters=None, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                return request.env[model].browse(uid).search_count(filters)
+            return self._env(uid)[model].search_count(filters)
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # search #
     @http.route('/odoo-api/object/search', type="json", auth='none', cors=CORS)
-    def odoo_api_search(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_search(self, model, filters=None, keys={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                limit = None
-                offset = None
-                order = None
-                count = False
-                context={}
-
-                if 'limit' in keys.keys():
-                    limit = keys['limit']
-                if 'offset' in keys.keys():
-                    offset = keys['offset']
-                if 'order' in keys.keys():
-                    order = keys['order']
-                if 'count' in keys.keys():
-                    count = keys['count']
-                if 'context' in keys.keys():
-                    context=keys['context']
-
-                ans = []
-                model = request.env[model].browse(uid).with_context(context).search(filters, limit=limit, offset=offset, order=order, count=count)
-                for m in model:
-                    ans.append(m.id)
-                return ans
+            limit = keys.get('limit')
+            offset = keys.get('offset')
+            order = keys.get('order')
+            count = keys.get('count', False)
+            records = self._env(uid)[model].search(filters, limit=limit, offset=offset, order=order, count=count)
+            return [m.id for m in records]
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # read #
     @http.route('/odoo-api/object/read', type="json", auth='none', cors=CORS)
-    def odoo_api_read(self, model, ids=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_read(self, model, ids=None, keys={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                fields = None
-
-                if 'fields' in keys.keys():
-                    fields = keys['fields']
-
-                model = request.env[model].browse(uid).browse(ids).read(fields=fields)
-                return model
+            fields = keys.get('fields')
+            return self._env(uid)[model].browse(ids).read(fields=fields)
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # search_read #
     @http.route('/odoo-api/object/search_read', type="json", auth='none', cors=CORS)
-    def odoo_api_search_read(self, model, filters=None, keys={}, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_search_read(self, model, filters=None, keys={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                limit = None
-                offset = 0
-                order = None
-                fields = None
-                context={}
-
-                if 'limit' in keys.keys():
-                    limit = keys['limit']
-                if 'offset' in keys.keys():
-                    offset = keys['offset']
-                if 'order' in keys.keys():
-                    order = keys['order']
-                if 'fields' in keys.keys():
-                    fields = keys['fields']
-                if 'context' in keys.keys():
-                    context=keys['context']
-
-                model = request.env[model].browse(uid).with_context(context).search_read(filters, limit=limit, offset=offset, order=order, fields=fields)
-                return model
+            limit = keys.get('limit')
+            offset = keys.get('offset', 0)
+            order = keys.get('order')
+            fields = keys.get('fields')
+            return self._env(uid)[model].search_read(filters, limit=limit, offset=offset, order=order, fields=fields)
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # write #
     @http.route('/odoo-api/object/write', type="json", auth='none', cors=CORS)
-    def odoo_api_write(self, model, id=None, vals={}, db=None, login=None, password=None, attributes=None, **kw):
-        """
-          Doc for One2many & Many2many
-          ``(0, 0, values)``
-              adds a new record created from the provided ``value`` dict.
-          ``(1, id, values)``
-              updates an existing record of id ``id`` with the values in
-              ``values``. Can not be used in :meth:`~.create`.
-          ``(2, id, 0)``
-              removes the record of id ``id`` from the set, then deletes it
-              (from the database). Can not be used in :meth:`~.create`.
-          ``(3, id, 0)``
-              removes the record of id ``id`` from the set, but does not
-              delete it. Can not be used in
-              :meth:`~.create`.
-          ``(4, id, 0)``
-              adds an existing record of id ``id`` to the set.
-          ``(5, 0, 0)``
-              removes all records from the set, equivalent to using the
-              command ``3`` on every record explicitly. Can not be used in
-              :meth:`~.create`.
-          ``(6, 0, ids)``
-              replaces all existing records in the set by the ``ids`` list,
-              equivalent to using the command ``5`` followed by a command
-              ``4`` for each ``id`` in ``ids``.
-        """
+    def odoo_api_write(self, model, id=None, vals={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                model = request.env[model].browse(uid).browse(id).write(vals)
-                return model
+            return self._env(uid)[model].browse(id).write(vals)
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # create #
     @http.route('/odoo-api/object/create', type="json", auth='none', cors=CORS)
-    def odoo_api_create(self, model, vals={}, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_create(self, model, vals={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                model = request.env[model].browse(uid).create(vals)
-                return model.id
+            return self._env(uid)[model].create(vals).id
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     # unlink #
     @http.route('/odoo-api/object/unlink', type="json", auth='none', cors=CORS)
-    def odoo_api_unlink(self, model, id=None, db=None, login=None, password=None, attributes=None, **kw):
+    def odoo_api_unlink(self, model, id=None, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
         try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                model = request.env[model].browse(uid).browse(id).unlink()
-                return model
+            return self._env(uid)[model].browse(id).unlink()
         except Exception as e:
             return {'status': False, 'error': str(e)}
-        
+
+    # execute_method #
+    @http.route('/odoo-api/object/execute_method', type="json", auth='none', cors=CORS)
+    def odoo_api_execute_method(self, model, ids, method, args=[], kwargs={}, token=None, **kw):
+        uid = _verify_token(token)
+        if not uid:
+            return {'error': 'TOKEN_INVALID'}
+        try:
+            allowed = ALLOWED_METHODS.get(model, [])
+            if method not in allowed:
+                return {'status': False, 'error': f"Método '{method}' no permitido para {model}"}
+            records = self._env(uid)[model].browse(ids)
+            fn = getattr(records, method, None)
+            if fn and callable(fn):
+                result = fn(*args, **kwargs)
+                _logger.info("Executed %s.%s", model, method)
+                if hasattr(result, 'ids'):
+                    return {'status': True, 'method': method, 'model': model, 'ids': result.ids}
+                elif isinstance(result, (dict, list, str, int, float, bool)):
+                    return {'status': True, 'method': method, 'model': model, 'result': result}
+                else:
+                    return {'status': True, 'method': method, 'model': model, 'result': str(result)}
+            return {'status': False, 'error': f"Método '{method}' no encontrado en {model}"}
+        except Exception as e:
+            return {'status': False, 'error': str(e)}
+
     # report #
     @http.route('/odoo-api/object/report', type="json", auth='none', cors=CORS)
     def odoo_api_report(self, model, id=None, report_name=None, db=None, login=None, password=None, **kw):
@@ -210,34 +219,6 @@ class OdooApiXMLRPC(http.Controller):
                 model = request.env[model].browse(uid).ref(report_name)._render_qweb_pdf([id])[0]    # ver. 14+
                 pdf = base64.b64encode(model)
                 return pdf
-        except Exception as e:
-            return {'status': False, 'error': str(e)}
-        
-    # execute_method (genérico) #
-    @http.route('/odoo-api/object/execute_method', type="json", auth='none', cors=CORS)
-    def odoo_api_execute_method(self, model, ids, method, args=[], kwargs={}, db=None, login=None, password=None, **kw):
-        try:
-            uid = request.session.authenticate(db, login, password)
-            if uid:
-                # Validar whitelist
-                allowed = ALLOWED_METHODS.get(model, [])
-                if method not in allowed:
-                    return {'status': False, 'error': f"Método '{method}' no permitido para {model}"}
-
-                records = request.env[model].sudo().browse(ids)
-                fn = getattr(records, method, None)
-
-                if fn and callable(fn):
-                    result = fn(*args, **kwargs)
-                    _logger.info(f"Executed {model}.{method} with args={args} kwargs={kwargs} result={result}")
-                    if hasattr(result, 'ids'):
-                        return {'status': True, 'method': method, 'model': model, 'ids': result.ids}
-                    elif isinstance(result, (dict, list, str, int, float, bool)):
-                        return {'status': True, 'method': method, 'model': model, 'result': result}
-                    else:
-                        return {'status': True, 'method': method, 'model': model, 'result': str(result)}
-                else:
-                    return {'status': False, 'error': f"Método '{method}' no encontrado en {model}"}
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
