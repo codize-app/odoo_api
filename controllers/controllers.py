@@ -73,16 +73,17 @@ class OdooApiXMLRPC(http.Controller):
     @http.route('/odoo-api/common/login', type="json", auth='none', cors=CORS)
     def odoo_api_login(self, db=None, login=None, password=None, **kw):
         try:
-            uid = request.session.authenticate(db, login, password)
+            credential = {'login': login, 'password': password, 'type': 'password'}
+            uid = request.session.authenticate(db, credential)
             if not uid:
                 return {'status': False, 'error': 'AUTH_REQUIRED'}
-            return {'uid': uid, 'token': _make_token(uid)}
+            return {'uid': uid, 'token': _make_token(uid['uid'])}
         except Exception as e:
             return {'status': False, 'error': str(e)}
 
     def _env(self, uid):
         return request.env(user=uid, su=True)
-
+        
     # fields_get #
     @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors=CORS)
     def odoo_api_fields_get(self, model, keys={}, token=None, **kw):
