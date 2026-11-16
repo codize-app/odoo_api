@@ -81,7 +81,7 @@ class OdooApiXMLRPC(http.Controller):
             return {'status': False, 'error': str(e)}
 
     def _env(self, uid):
-        return request.env(user=uid, su=True)
+        return request.env(user=uid)
 
     # fields_get #
     @http.route('/odoo-api/object/fields_get', type="json", auth='none', cors=CORS)
